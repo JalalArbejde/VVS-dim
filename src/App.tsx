@@ -4,6 +4,7 @@ import { beregnDiagram, type DiagramResultat } from './beregning/net';
 import { SYSTEM_NAVN } from './model/types';
 import { Laerred } from './tegning/Laerred';
 import { Egenskaber } from './ui/Egenskaber';
+import { Skema } from './ui/Skema';
 import { Vaerktoejslinje } from './ui/Vaerktoejslinje';
 
 export default function App() {
@@ -11,13 +12,17 @@ export default function App() {
   const diagram = useStore((s) => s.projekt[s.system]);
   const f = useStore((s) => s.projekt.forudsaetninger);
   const res = useMemo(() => beregnDiagram(diagram, system, f), [diagram, system, f]);
+  const visSkema = useStore((s) => s.visSkema);
   useTastatur();
 
   return (
     <div className="app">
       <Vaerktoejslinje />
       <main>
-        <Laerred res={res} />
+        <div className="venstre-kol">
+          <Laerred res={res} />
+          {visSkema && <Skema res={res} />}
+        </div>
         <Egenskaber res={res} />
       </main>
       <Statuslinje res={res} />

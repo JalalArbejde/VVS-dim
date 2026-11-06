@@ -79,6 +79,8 @@ export interface Opsummering {
 
 export interface DiagramResultat {
   straekninger: Record<string, SysResultat>;
+  /** Strømningsretning pr. strækning: fra forsyningen (fra) mod tapstedet (til) */
+  retning: Record<string, { fra: string; til: string }>;
   knuder: Record<string, KnudeTryk>;
   opsummering: Opsummering | null;
   advarsler: string[];
@@ -96,7 +98,7 @@ export function beregnDiagram(
     knuder: diagram.knuder.filter((k) => !fortsaet.has(k.id)),
     straekninger: diagram.straekninger.filter((s) => !fortsaet.has(s.fra) && !fortsaet.has(s.til)),
   };
-  const res: DiagramResultat = { straekninger: {}, knuder: {}, opsummering: null, advarsler: [] };
+  const res: DiagramResultat = { straekninger: {}, retning: {}, knuder: {}, opsummering: null, advarsler: [] };
   const forsyninger = d.knuder.filter((k) => k.type === 'forsyning');
   if (forsyninger.length === 0) {
     if (d.straekninger.length > 0) {
@@ -153,6 +155,7 @@ export function beregnDiagram(
     const kant = foraelderKant.get(n)!;
     return kant.fra === n ? kant.til : kant.fra;
   };
+  for (const [n, kant] of foraelderKant) res.retning[kant.id] = { fra: foraelder(n), til: n };
 
   // 2. Akkumulér Σqf, tillæg og slangevinde fra punkterne mod forsyningen
   const fraBoern = new Map<string, Bidrag>();

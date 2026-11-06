@@ -5,14 +5,8 @@ import { migrer, nytProjekt } from './model/standard';
 import { rydLoeseKnuder, sletKnude, sletStraekning } from './model/operationer';
 
 export type Vaerktoej = 'vaelg' | 'roer';
-export type ArkStr = 'A3' | 'A2' | 'A1';
-
-/** Liggende arkformater [mm] */
-export const ARK_MM: Record<ArkStr, { b: number; h: number }> = {
-  A3: { b: 420, h: 297 },
-  A2: { b: 594, h: 420 },
-  A1: { b: 841, h: 594 },
-};
+import type { ArkStr } from './tegning/ark';
+export type { ArkStr };
 export type Valg =
   | { type: 'knude' | 'straekning'; id: string }
   | { type: 'flere'; knuder: string[]; straekninger: string[] }
@@ -47,6 +41,12 @@ interface Tilstand {
   skiftArk: (a: ArkStr) => void;
   visGitter: boolean;
   setVisGitter: (v: boolean) => void;
+  /** Vis strækningsnavn og længde på tegningen */
+  visNavne: boolean;
+  setVisNavne: (v: boolean) => void;
+  /** Vis skemaet under tegningen */
+  visSkema: boolean;
+  setVisSkema: (v: boolean) => void;
 
   aendr: <T>(fn: (p: Projekt) => T, medHistorik?: boolean) => T;
   gemHistorik: () => void;
@@ -102,6 +102,10 @@ export const useStore = create<Tilstand>()((set, get) => ({
   skiftArk: (a) => set((s) => ({ ark: s.ark.includes(a) ? s.ark.filter((x) => x !== a) : [...s.ark, a] })),
   visGitter: true,
   setVisGitter: (v) => set({ visGitter: v }),
+  visNavne: true,
+  setVisNavne: (v) => set({ visNavne: v }),
+  visSkema: true,
+  setVisSkema: (v) => set({ visSkema: v }),
 
   aendr: (fn, medHistorik = true) => {
     const s = get();

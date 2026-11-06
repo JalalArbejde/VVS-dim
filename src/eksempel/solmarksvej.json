@@ -1,0 +1,431 @@
+{
+  "version": 2,
+  "navn": "Solmarksvej",
+  "BK": {
+    "knuder": [
+      {
+        "id": "zzswu387",
+        "navn": "Forsyning",
+        "x": -1470,
+        "y": 710,
+        "type": "forsyning",
+        "kote": -1.2,
+        "qf": 0
+      },
+      {
+        "id": "bqkw0mmm",
+        "navn": "Teknikrum",
+        "x": -1200,
+        "y": 600,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0
+      },
+      {
+        "id": "prznhcx5",
+        "navn": "Køkken og service opvask",
+        "x": -1200,
+        "y": 450,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0.8
+      },
+      {
+        "id": "vsva1m1s",
+        "navn": "Lager",
+        "x": -810,
+        "y": 290,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "slangevinde": true
+      },
+      {
+        "id": "g81o9uc5",
+        "navn": "",
+        "x": -1010,
+        "y": 450,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "rivvwayw",
+        "navn": "Toiletkerne",
+        "x": -600,
+        "y": 290,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0
+      },
+      {
+        "id": "yvp4cz85",
+        "navn": "",
+        "x": -810,
+        "y": 380,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "2q617w7j",
+        "navn": "",
+        "x": -600,
+        "y": 380,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "5legh5p9",
+        "navn": "Skakt 1",
+        "x": -330,
+        "y": 290,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0
+      },
+      {
+        "id": "05n37t04",
+        "navn": "",
+        "x": -330,
+        "y": 160,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "s70veqoj",
+        "navn": "Skakt 2 + toiletkerne + GH",
+        "x": -140,
+        "y": 290,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 3.35
+      },
+      {
+        "id": "12rn7ljz",
+        "navn": "",
+        "x": 50,
+        "y": 290,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "i01a9738",
+        "navn": "Omklædning",
+        "x": 100,
+        "y": 430,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 1.3
+      },
+      {
+        "id": "f9agu80i",
+        "navn": "C",
+        "x": 710,
+        "y": 430,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 1.6
+      },
+      {
+        "id": "g10sa7kp",
+        "navn": "D",
+        "x": 710,
+        "y": 180,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 1
+      },
+      {
+        "id": "v8ka4rv5",
+        "navn": "Fordeler",
+        "x": 780,
+        "y": -70,
+        "type": "punkt",
+        "kote": 11.5,
+        "qf": 0.9
+      },
+      {
+        "id": "mrnkwert",
+        "navn": "",
+        "x": 820,
+        "y": 180,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "5ohbergp",
+        "navn": "",
+        "x": 850,
+        "y": 430,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "q60ddrrr",
+        "navn": "",
+        "x": 100,
+        "y": 530,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "zj9szs3j",
+        "navn": "Skakt 3 + toiletkerne",
+        "x": 340,
+        "y": 430,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 4.2
+      },
+      {
+        "id": "j3ldgf17",
+        "navn": "",
+        "x": 340,
+        "y": 290,
+        "type": "punkt",
+        "kote": 3,
+        "qf": 0,
+        "fortsaetter": true
+      },
+      {
+        "id": "s0v2fcpl",
+        "navn": "Tap",
+        "x": 1010,
+        "y": -70,
+        "type": "punkt",
+        "kote": 10,
+        "qf": 0.1
+      }
+    ],
+    "straekninger": [
+      {
+        "id": "pjwsn2vx",
+        "fra": "zzswu387",
+        "til": "bqkw0mmm",
+        "laengde": 50,
+        "knaek": [
+          {
+            "x": -1200,
+            "y": 710
+          }
+        ]
+      },
+      {
+        "id": "wlksa3ut",
+        "fra": "bqkw0mmm",
+        "til": "prznhcx5",
+        "laengde": 10,
+        "knaek": []
+      },
+      {
+        "id": "mmvi6982",
+        "fra": "prznhcx5",
+        "til": "vsva1m1s",
+        "laengde": 20,
+        "knaek": [
+          {
+            "x": -1200,
+            "y": 290
+          }
+        ]
+      },
+      {
+        "id": "jvqwj3dn",
+        "fra": "prznhcx5",
+        "til": "g81o9uc5",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "byqr0vxh",
+        "fra": "vsva1m1s",
+        "til": "rivvwayw",
+        "laengde": 1,
+        "knaek": []
+      },
+      {
+        "id": "ns0slxvv",
+        "fra": "vsva1m1s",
+        "til": "yvp4cz85",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "ut1aj7k2",
+        "fra": "rivvwayw",
+        "til": "2q617w7j",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "f4moqb41",
+        "fra": "rivvwayw",
+        "til": "5legh5p9",
+        "laengde": 4,
+        "knaek": []
+      },
+      {
+        "id": "f7fpudxh",
+        "fra": "5legh5p9",
+        "til": "05n37t04",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "pyhtafdz",
+        "fra": "5legh5p9",
+        "til": "s70veqoj",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "qswl6xsb",
+        "fra": "s70veqoj",
+        "til": "12rn7ljz",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "xs6apxcy",
+        "fra": "s70veqoj",
+        "til": "i01a9738",
+        "laengde": null,
+        "knaek": [
+          {
+            "x": -140,
+            "y": 430
+          }
+        ]
+      },
+      {
+        "id": "iludpy5t",
+        "fra": "f9agu80i",
+        "til": "g10sa7kp",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "d8qnh42b",
+        "fra": "g10sa7kp",
+        "til": "v8ka4rv5",
+        "laengde": 10,
+        "knaek": [
+          {
+            "x": 710,
+            "y": -70
+          }
+        ]
+      },
+      {
+        "id": "85q7nxvv",
+        "fra": "g10sa7kp",
+        "til": "mrnkwert",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "aqhzwip6",
+        "fra": "f9agu80i",
+        "til": "5ohbergp",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "6q7poddz",
+        "fra": "i01a9738",
+        "til": "q60ddrrr",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "ogytgj3q",
+        "fra": "i01a9738",
+        "til": "zj9szs3j",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "y9byqa01",
+        "fra": "zj9szs3j",
+        "til": "f9agu80i",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "wk0jq6ld",
+        "fra": "zj9szs3j",
+        "til": "j3ldgf17",
+        "laengde": null,
+        "knaek": []
+      },
+      {
+        "id": "krqq4ham",
+        "fra": "v8ka4rv5",
+        "til": "s0v2fcpl",
+        "laengde": 10,
+        "knaek": [],
+        "roertype": "px",
+        "laast": "15"
+      }
+    ]
+  },
+  "BV": {
+    "knuder": [],
+    "straekninger": []
+  },
+  "forudsaetninger": {
+    "tempKold": 10,
+    "tempVarm": 55,
+    "forsyningstryk": 300,
+    "komponenter": [
+      {
+        "navn": "Anboring",
+        "kPa": 10
+      },
+      {
+        "navn": "Hovedmåler",
+        "kPa": 20
+      },
+      {
+        "navn": "Bimåler",
+        "kPa": 8
+      },
+      {
+        "navn": "Kontraventil/tilbageløbssikring",
+        "kPa": 10
+      },
+      {
+        "navn": "Afspærringsventiler",
+        "kPa": 15
+      },
+      {
+        "navn": "Større enkeltmodstande (vandvarmer)",
+        "kPa": 25
+      }
+    ],
+    "boost": 0,
+    "tillaeg": 25,
+    "tapstedTryk": 150,
+    "vMax": 1.3,
+    "vMin": 0.7,
+    "vGnsMax": 1.2,
+    "rMax": 1,
+    "roertype": "rs",
+    "autoTryk": true
+  }
+}

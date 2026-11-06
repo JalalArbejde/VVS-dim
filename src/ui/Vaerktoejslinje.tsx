@@ -1,5 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useStore, erProjekt, type Vaerktoej } from '../store';
+import { ARK_LISTE, type ArkStr } from '../tegning/ark';
+import { printPdf } from './print';
+import eksempel from '../eksempel/solmarksvej.json';
+import type { Projekt } from '../model/types';
 import { SYSTEM_NAVN, TAPPESYSTEMER } from '../model/types';
 import { nytProjekt } from '../model/standard';
 
@@ -19,6 +23,10 @@ export function Vaerktoejslinje() {
   const skiftArk = useStore((s) => s.skiftArk);
   const visGitter = useStore((s) => s.visGitter);
   const setVisGitter = useStore((s) => s.setVisGitter);
+  const visNavne = useStore((s) => s.visNavne);
+  const setVisNavne = useStore((s) => s.setVisNavne);
+  const visSkema = useStore((s) => s.visSkema);
+  const setVisSkema = useStore((s) => s.setVisSkema);
   const kanFortryde = useStore((s) => s.historik.length > 0);
   const kanGentage = useStore((s) => s.fremtid.length > 0);
   const fortryd = useStore((s) => s.fortryd);
@@ -26,6 +34,11 @@ export function Vaerktoejslinje() {
   const indlaes = useStore((s) => s.indlaes);
   const aendr = useStore((s) => s.aendr);
   const filRef = useRef<HTMLInputElement>(null);
+  // Standard printformat: det største ark der er vist
+  const [printArk, setPrintArk] = useState<ArkStr>(() => {
+    const vist = useStore.getState().ark;
+    return [...ARK_LISTE].reverse().find((a) => vist.includes(a)) ?? 'A3';
+  });
 
   const gem = () => {
     const p = useStore.getState().projekt;
@@ -87,7 +100,14 @@ export function Vaerktoejslinje() {
         >
           Detaljer <kbd>D</kbd>
         </button>
-        {(['A3', 'A2', 'A1'] as const).map((a) => (
+        <button className={visSkema ? 'aktiv' : ''} onClick={() => setVisSkema(!visSkema)} title="Vis skema under tegningen">
+          Skema
+        </button>
+        <label className="vink" title="Vis strækningsnavn og længde på tegningen (også på PDF)">
+          <input type="checkbox" checked={visNavne} onChange={(e) => setVisNavne(e.target.checked)} />
+          Strækning og længde
+        </label>
+        {ARK_LISTE.map((a) => (
           <button
             key={a}
             className={ark.includes(a) ? 'aktiv' : ''}
@@ -100,6 +120,18 @@ export function Vaerktoejslinje() {
         <button className={visGitter ? 'aktiv' : ''} onClick={() => setVisGitter(!visGitter)} title="Vis gitter">
           Gitter
         </button>
+        <span className="print-valg">
+          <select value={printArk} onChange={(e) => setPrintArk(e.target.value as ArkStr)} title="Arkformat til PDF">
+            {ARK_LISTE.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
+          </select>
+          <button onClick={() => printPdf(printArk)} title="Print tegningen på det valgte ark – vælg 'Gem som PDF'">
+            PDF
+          </button>
+        </span>
       </div>
 
       {system === 'BV' && (
@@ -124,6 +156,16 @@ export function Vaerktoejslinje() {
           }}
         >
           Ny
+        </button>
+        <button
+          onClick={() => {
+            if (confirm('Åbn eksemplet (Solmarksvej)? Den nuværende tegning erstattes – gem den først, hvis du vil beholde den.')) {
+              indlaes(structuredClone(eksempel) as unknown as Projekt);
+            }
+          }}
+          title="Åbn et færdigt eksempel"
+        >
+          Eksempel
         </button>
         <button onClick={() => filRef.current?.click()}>Åbn…</button>
         <button onClick={gem}>Gem</button>

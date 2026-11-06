@@ -43,6 +43,13 @@ button.lille { padding: 1px 7px; }
 button.fare { display: block; margin-top: 20px; color: var(--fare); border-color: #fecaca; }
 
 /* Koldt / varmt vand */
+.vink {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; cursor: pointer;
+  border: 1px solid var(--kant); border-radius: 6px; background: #fff; user-select: none;
+}
+.vink input { margin: 0; }
+.print-valg { display: inline-flex; gap: 2px; margin-left: 8px; }
+.print-valg select { font: inherit; padding: 3px 4px; border: 1px solid var(--kant); border-radius: 6px; background: #fff; }
 .segment { display: flex; border: 1px solid var(--kant); border-radius: 8px; padding: 2px; gap: 2px; }
 .segment button { border: none; border-radius: 6px; padding: 4px 14px; font-weight: 600; }
 .segment button.seg-BK.aktiv { background: var(--bk); }
@@ -58,7 +65,42 @@ kbd {
 /* Hovedområde */
 main { display: grid; grid-template-columns: 1fr 330px; min-height: 0; }
 
-.laerred-ramme { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #fff; }
+.venstre-kol { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.laerred-ramme { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; background: #fff; }
+
+/* Skema under tegningen */
+.skema {
+  position: relative; display: flex; flex-direction: column; flex: none;
+  border-top: 1px solid var(--kant); background: var(--panel);
+}
+.skema-greb { position: absolute; top: -3px; left: 0; right: 0; height: 6px; cursor: ns-resize; z-index: 2; }
+.skema-greb:hover { background: #cbd5e1; }
+.skema-top { display: flex; align-items: center; gap: 12px; padding: 5px 10px; border-bottom: 1px solid var(--kant); }
+.skema-rul { flex: 1; overflow: auto; }
+.skema table { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.skema th {
+  position: sticky; top: 0; z-index: 1; padding: 5px 8px; font-weight: 600; font-size: 11px;
+  color: #fff; background: #1f6f78; text-align: right; border-right: 1px solid #2c8590;
+}
+.skema th.input { background: #2b7f8a; }
+.skema th.venstre, .skema td.venstre { text-align: left; }
+.skema td { padding: 2px 8px; text-align: right; border-bottom: 1px solid #edf0f3; border-right: 1px solid #f1f3f5; }
+.skema td:nth-child(-n+3), .skema th:nth-child(-n+3), .skema td:nth-child(5) { text-align: center; }
+.skema tbody tr { cursor: pointer; }
+.skema tbody tr:hover { background: #f8fafc; }
+.skema tbody tr.valgt { background: #fff7ed; }
+.skema tbody tr.loeb-start td { border-top: 1.5px solid #94a3b8; }
+.skema tbody tr.ikke-forbundet { color: var(--daempet); font-style: italic; }
+.skema td.input { background: #e0f4f7; padding: 1px 2px; }
+.skema td.input.mangler { background: #fee2e2; }
+.skema td.input input {
+  width: 64px; padding: 2px 6px; font: inherit; text-align: right;
+  border: 1px solid transparent; border-radius: 3px; background: transparent;
+}
+.skema td.input input:focus { border-color: #2563eb; background: #fff; outline: none; }
+.skema td.beregnet { background: #f1f9fa; font-weight: 600; }
+.skema td.fejl { color: var(--fare); font-weight: 700; }
+.skema td.tom { text-align: center; color: var(--daempet); padding: 16px; cursor: default; }
 .laerred { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; }
 .vaerktoej-roer { cursor: crosshair; }
 .zoom-info {

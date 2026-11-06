@@ -13,7 +13,10 @@ export function RoerTegning({
   res,
   visDetaljer,
   visuel = false,
+  visNavn = true,
 }: {
+  /** Vis strækningsnavn og længde */
+  visNavn?: boolean;
   s: Straekning;
   navn: string;
   pts: Punkt[];
@@ -57,10 +60,11 @@ export function RoerTegning({
       {l > 0 && !visuel && (
         <g transform={transform}>
           {/* Dimension over navnet */}
-          <text y={-11} textAnchor="middle" className={'roer-dim' + (dimAdvarsel ? ' advarsel' : '')}>
+          <text y={visNavn ? -11 : -3} textAnchor="middle" className={'roer-dim' + (dimAdvarsel ? ' advarsel' : '')}>
             {dimTekst}
           </text>
           {/* Navn og længde står på linjen */}
+          {visNavn && (
           <text y={-2.5} textAnchor="middle" className="roer-navn">
             {navn} ·{' '}
             {s.laengde != null ? (
@@ -69,6 +73,7 @@ export function RoerTegning({
               <tspan className="advarsel">L=?</tspan>
             )}
           </text>
+          )}
           {/* Detaljer under linjen */}
           {visDetaljer && res?.tab && (
             <text y={11} textAnchor="middle" className="roer-detalje">

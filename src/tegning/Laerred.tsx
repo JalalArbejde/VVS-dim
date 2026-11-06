@@ -4,7 +4,8 @@
 // Panorér: hold scrollhjulet nede · Zoom: scroll
 import { useEffect, useRef, useState } from 'react';
 import type { PointerEvent as RPointerEvent } from 'react';
-import { ARK_MM, erValgt, useStore } from '../store';
+import { erValgt, useStore } from '../store';
+import { ARK_MM, mmTilEnhed, NULPUNKT } from './ark';
 import type { Diagram, Knude, Punkt } from '../model/types';
 import { ortogonal, snapPunkt } from '../model/geometri';
 import {
@@ -19,13 +20,6 @@ import {
 import { punktFlow, type DiagramResultat } from '../beregning/net';
 import { FARVE, PunktTegning, RoerTegning } from './Symboler';
 
-/**
- * Arkrammer (liggende) i tegneenheder. 1 enhed = 1 typografisk punkt (1/72"),
- * så A3-rammen bliver 420 × 297 mm ved print, og 7 px tekst ≈ 2,5 mm.
- * Alle ark har samme nulpunkt: nederste højre hjørne (hvor tegningshovedet sidder).
- */
-const mmTilEnhed = (mm: number) => (mm / 25.4) * 72;
-const NULPUNKT = { x: -60 + mmTilEnhed(420), y: -60 + mmTilEnhed(297) };
 
 type Traek =
   | { type: 'pan'; sx: number; sy: number; vx: number; vy: number }
@@ -58,6 +52,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
   const tegnKnaek = useStore((s) => s.tegnKnaek);
   const markoer = useStore((s) => s.markoer);
   const visDetaljer = useStore((s) => s.visDetaljer);
+  const visNavne = useStore((s) => s.visNavne);
   const ark = useStore((s) => s.ark);
   const visGitter = useStore((s) => s.visGitter);
 
@@ -364,7 +359,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
             <rect width="100%" height="100%" fill="url(#gitter-grov)" />
           </g>
         )}
-        <g transform={`translate(${view.x} ${view.y}) scale(${view.zoom})`}>
+        <g data-print="indhold" transform={`translate(${view.x} ${view.y}) scale(${view.zoom})`}>
           {ark.map((a) => {
             const b = mmTilEnhed(ARK_MM[a].b);
             const h = mmTilEnhed(ARK_MM[a].h);
@@ -393,6 +388,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
                 res={res.straekninger[s.id]}
                 visDetaljer={visDetaljer}
                 visuel={!!(a.fortsaetter || b.fortsaetter)}
+                visNavn={visNavne}
               />
             );
           })}
@@ -420,7 +416,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
             />
           )}
           {tegnKnaek.map((p, i) => (
-            <circle key={i} cx={p.x} cy={p.y} r={2} fill={FARVE[system]} />
+            <circle key={i} cx={p.x} cy={p.y} r={2} fill={FARVE[system]} className="tegn-knaek" />
           ))}
           {omraade && (
             <rect
@@ -432,7 +428,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
             />
           )}
           {markoer && vaerktoej === 'roer' && (
-            <circle cx={markoer.x} cy={markoer.y} r={3 / view.zoom} fill={FARVE[system]} />
+            <circle cx={markoer.x} cy={markoer.y} r={3 / view.zoom} fill={FARVE[system]} className="markoer" />
           )}
         </g>
       </svg>
