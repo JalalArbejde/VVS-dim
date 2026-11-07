@@ -213,3 +213,19 @@ p.advarsel-tekst { margin: 4px 0; font-size: 12px; }
 }
 .statuslinje .advarsel { color: #b45309; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 button.kun-lokalt { border-style: dashed; color: #92400e; border-color: #f59e0b; }
+
+/* Trykopgørelse for farligste punkt: forsyning → strækninger → kote */
+.trin-fp { margin: 0 0 6px; }
+.panel table.trin { font-size: 12.5px; }
+.panel table.trin td { padding: 2px 4px; }
+.panel table.trin td.minus { color: #475569; }
+.panel table.trin td.daempet { color: var(--daempet); font-size: 11.5px; }
+.panel table.trin tr.trin-hoved td {
+  padding-top: 10px; font-weight: 600; font-size: 12px; color: var(--bk);
+  border-bottom: 1px solid var(--kant);
+}
+.panel table.trin tr.trin-hoved:first-child td { padding-top: 2px; }
+.panel table.trin tr.trin-sum td { font-weight: 600; border-top: 1px solid #94a3b8; background: #f1f5f9; }
+.panel table.trin tr.trin-slut td { border-top: 2px solid #334155; }
+.panel table.trin tr.trin-slut.advarsel-tekst td { color: var(--fare); }
+.trin-enhed { margin: 0 0 8px; text-align: right; }

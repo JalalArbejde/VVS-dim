@@ -515,15 +515,45 @@ function Opsummering({ res }: { res: DiagramResultat }) {
   if (!o || !fp || o.pxKritisk == null) {
     return <p className="hint">Tegn et net og angiv vandmængder i punkterne for at se resultatet.</p>;
   }
+  const fortegn = (v: number) => (v < 0 ? '−' : '+') + fmt(Math.abs(v), 1);
+  const dpHoejde = 9.81 * o.hoejdeKritisk;
+  const sumKomp = sumKomponenter(f);
+  const antalStr = o.kritiskVej.filter((sid) => res.straekninger[sid]?.tab).length;
+
   return (
     <>
+      <p className="trin-fp">
+        Farligste punkt (FP): <strong>{fp.navn}</strong>
+      </p>
+      <table className="trin">
+        <tbody>
+          <tr><td>Forsyningstryk pf</td><td className="tal">{fmt(f.forsyningstryk, 1)}</td></tr>
+          <tr>
+            <td title={f.komponenter.map((c) => `${c.navn}: ${fmt(c.kPa, 1)} kPa`).join('\n')}>
+              Komponenter <span className="daempet">({f.komponenter.length} stk.)</span>
+            </td>
+            <td className="tal minus">{fortegn(-sumKomp)}</td>
+          </tr>
+          {f.boost > 0 && (
+            <tr><td>Trykforøgning</td><td className="tal">{fortegn(f.boost)}</td></tr>
+          )}
+          <tr>
+            <td>Strækninger <span className="daempet">({antalStr} stk. på kritisk vej)</span></td>
+            <td className="tal minus">{fortegn(-o.sumDpKritisk)}</td>
+          </tr>
+          <tr>
+            <td>Kote <span className="daempet">(Δh {fmt(o.hoejdeKritisk)} m)</span></td>
+            <td className={'tal' + (dpHoejde > 0 ? ' minus' : '')}>{fortegn(-dpHoejde)}</td>
+          </tr>
+          <tr className={'trin-sum trin-slut' + (o.pxKritisk < f.tapstedTryk ? ' advarsel-tekst' : '')}>
+            <td>= px i FP <span className="daempet">(krav ≥ {fmt(f.tapstedTryk, 0)})</span></td>
+            <td className="tal">{fmt(o.pxKritisk, 1)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p className="hint trin-enhed">Alle tryk i kPa.</p>
       <table>
         <tbody>
-          <Raekke navn="Farligste punkt (FP)" v={fp.navn} />
-          <Raekke navn="p'xe disponibelt" v={`${fmt(o.pxe, 1)} kPa`} />
-          <Raekke navn="ΣΔP kritisk vej" v={`${fmt(o.sumDpKritisk, 1)} kPa`} />
-          <Raekke navn={`Højde ${fmt(o.hoejdeKritisk)} m`} v={`${fmt(9.81 * o.hoejdeKritisk, 1)} kPa`} />
-          <Raekke navn="px i FP" v={`${fmt(o.pxKritisk, 1)} kPa`} advarsel={o.pxKritisk < f.tapstedTryk} />
           <Raekke navn="Max qd'" v={`${fmt(o.maxQdMark, 3)} l/s`} />
           {o.gnsVKritisk != null && (
             <Raekke navn="Gns. hastighed" v={`${fmt(o.gnsVKritisk)} m/s`} advarsel={o.gnsVKritisk > f.vGnsMax} />
