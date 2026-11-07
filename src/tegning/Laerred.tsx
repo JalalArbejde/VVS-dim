@@ -18,7 +18,7 @@ import {
   tilfoejStraekning,
 } from '../model/operationer';
 import { punktFlow, type DiagramResultat } from '../beregning/net';
-import { FARVE, PunktTegning, RoerTegning } from './Symboler';
+import { FARVE, LINJE, PunktTegning, RoerTegning } from './Symboler';
 
 
 type Traek =
@@ -309,6 +309,17 @@ export function Laerred({ res }: { res: DiagramResultat }) {
     forhaandsvisning = [fraK, ...tegnKnaek, ...(markoer ? [ortogonal(sidste, markoer)] : [])];
   }
   const fp = res.opsummering?.kritiskKnude;
+  // Kritisk vej opdateres automatisk ved hver ændring (beregnes i beregnDiagram)
+  const kritiskSti = (res.opsummering?.kritiskVej ?? [])
+    .map((sid) => {
+      const s = diagram.straekninger.find((x) => x.id === sid);
+      const a = s && km.get(s.fra);
+      const b = s && km.get(s.til);
+      if (!s || !a || !b) return '';
+      const pts = [a, ...(s.knaek ?? []), b];
+      return 'M ' + pts.map((p) => `${p.x} ${p.y}`).join(' L ');
+    })
+    .join(' ');
 
   /** Retning af røret ind i et punkt [grader] */
   const vinkelInd = (k: Knude) => {
@@ -373,6 +384,8 @@ export function Laerred({ res }: { res: DiagramResultat }) {
               </g>
             );
           })}
+{/* Kritisk vej som ÉN sti, så hele vejen pulserer i takt */}
+          {kritiskSti && <path d={kritiskSti} className="roer-kritisk-puls" />}
           {diagram.straekninger.map((s) => {
             const a = km.get(s.fra);
             const b = km.get(s.til);
@@ -383,7 +396,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
                 s={s}
                 navn={`${a.navn}-${b.navn}`}
                 pts={[a, ...(s.knaek ?? []), b]}
-                farve={FARVE[system]}
+                stil={LINJE[system]}
                 valgt={erValgt(valg, 'straekning', s.id)}
                 res={res.straekninger[s.id]}
                 visDetaljer={visDetaljer}

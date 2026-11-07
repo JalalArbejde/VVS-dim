@@ -2,13 +2,24 @@ import type { Knude, Punkt, Straekning, Tappesystem } from '../model/types';
 import { fmt, fmtKote } from '../model/geometri';
 import type { KnudeTryk, SysResultat } from '../beregning/net';
 
-export const FARVE: Record<Tappesystem, string> = { BK: '#2563eb', BV: '#dc2626' };
+/** 1 tegneenhed = 1 pt = 0,3528 mm (se tegning/ark.ts) */
+const mm = (v: number) => v / 0.3528;
+
+/**
+ * Linjestil pr. system (tegnestandard).
+ * BK: RGB 000-000-129, linjetykkelse 4 (= 0,40 mm), Long dash dot.
+ */
+export const LINJE: Record<Tappesystem, { farve: string; bredde: number; streg?: string }> = {
+  BK: { farve: 'rgb(0, 0, 129)', bredde: mm(0.4), streg: `${mm(6)} ${mm(1)} ${mm(0.4)} ${mm(1)}` },
+  BV: { farve: '#dc2626', bredde: 1.6 },
+};
+export const FARVE: Record<Tappesystem, string> = { BK: LINJE.BK.farve, BV: LINJE.BV.farve };
 
 export function RoerTegning({
   s,
   navn,
   pts,
-  farve,
+  stil,
   valgt,
   res,
   visDetaljer,
@@ -20,7 +31,7 @@ export function RoerTegning({
   s: Straekning;
   navn: string;
   pts: Punkt[];
-  farve: string;
+  stil: { farve: string; bredde: number; streg?: string };
   valgt: boolean;
   /** Kun visning (rørstræk fortsætter) – ingen tekst */
   visuel?: boolean;
@@ -56,7 +67,14 @@ export function RoerTegning({
     <g className="roer">
       {/* Bred usynlig linje: orange markering når musen er over strækningen */}
       <polyline points={linje} className="roer-hover" />
-      <polyline points={linje} fill="none" stroke={farve} strokeWidth={valgt ? 3 : 1.6} strokeLinejoin="round" />
+      <polyline
+        points={linje}
+        fill="none"
+        stroke={stil.farve}
+        strokeWidth={valgt ? stil.bredde * 2 : stil.bredde}
+        strokeDasharray={stil.streg}
+        strokeLinejoin="round"
+      />
       {l > 0 && !visuel && (
         <g transform={transform}>
           {/* Dimension over navnet */}
@@ -116,12 +134,8 @@ export function PunktTegning({
     );
   }
   const info: { t: string; advarsel?: boolean }[] = [];
+  // Ved punktet vises kun vandmængden – tryk står i panelet og skemaet
   if (flow > 0) info.push({ t: `q ${fmt(flow)} l/s` });
-  const lavt = !!tryk && flow > 0 && tryk.px < krav;
-  // Tryk vises kun når "Detaljer" er slået til
-  if (tryk && visDetaljer) {
-    info.push({ t: `px ${fmt(tryk.px, 0)} kPa${fp ? ' · FP' : ''}`, advarsel: lavt });
-  }
 
   return (
     <g>

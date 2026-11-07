@@ -55,7 +55,7 @@ export function printPdf(a: ArkStr) {
       const klon = g.cloneNode(true) as SVGGElement;
       klon.removeAttribute('transform');
       klon
-        .querySelectorAll('.ark-ramme, .roer-hover, .markering, .forhaandsvisning, .markoer, .tegn-knaek, .fortsaetter-hit')
+        .querySelectorAll('.ark-ramme, .roer-hover, .markering, .forhaandsvisning, .markoer, .tegn-knaek, .fortsaetter-hit, .roer-kritisk-puls')
         .forEach((e) => e.remove());
 
       const st = useStore.getState();

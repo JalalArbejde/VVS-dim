@@ -5,6 +5,7 @@ import type { Diagram, Forudsaetninger, Knude, Straekning } from '../model/types
 import { SYSTEM_NAVN } from '../model/types';
 import { fmt } from '../model/geometri';
 import { antalForbindelser, saetFortsaetter } from '../model/operationer';
+import { naesteNavn } from '../model/standard';
 import { TAPSTEDER } from '../katalog/tapsteder';
 import { ROERSERIER, dimId, dimLabel, findSerie } from '../katalog/roerserier';
 import { punktFlow, sumKomponenter, type Advarsel, type DiagramResultat } from '../beregning/net';
@@ -15,7 +16,7 @@ function advarselTekst(a: Advarsel, f: Forudsaetninger) {
   return {
     v_hoej: `Hastighed over ${fmt(f.vMax, 1)} m/s`,
     v_lav: `Hastighed under ${fmt(f.vMin, 1)} m/s (varmt vand)`,
-    R_hoej: `Trykgradient over ${fmt(f.rMax, 1)} kPa/m`,
+    R_hoej: `Trykgradient over ${fmt(f.rMax * 1000, 0)} Pa/m`,
     Re_lav: 'Re < 4000 – ikke turbulent, formlerne er ugyldige',
   }[a];
 }
@@ -224,7 +225,7 @@ function StraekningPanel({ s, res }: { s: Straekning; res: DiagramResultat }) {
             <Raekke navn="v" v={`${fmt(t.v)} m/s`} advarsel={adv.includes('v_hoej') || adv.includes('v_lav')} />
             <Raekke navn="Re" v={Math.round(t.Re).toLocaleString('da-DK')} advarsel={adv.includes('Re_lav')} />
             <Raekke navn="λ" v={fmt(t.lambda, 4)} />
-            <Raekke navn="R" v={`${fmt(t.R, 3)} kPa/m`} advarsel={adv.includes('R_hoej')} />
+            <Raekke navn="R" v={`${fmt(t.R * 1000, 0)} Pa/m`} advarsel={adv.includes('R_hoej')} />
             <Raekke navn="ΔP" v={`${fmt(t.dp)} kPa`} />
           </tbody>
         </table>
@@ -288,7 +289,18 @@ function PunktPanel({ k, res }: { k: Knude; res: DiagramResultat }) {
       <div className="to-kol">
         <div>
           <label>Navn</label>
-          <Felt vaerdi={k.navn} onGem={(v) => v.trim() && opd((x) => void (x.navn = v.trim()))} />
+          <Felt
+            vaerdi={k.navn}
+            onGem={(v) =>
+              aendrD((d) => {
+                const x = d.knuder.find((y) => y.id === k.id);
+                if (!x) return;
+                // Tomt navn → næste ledige bogstav (A, B, C …)
+                x.navn = '';
+                x.navn = v.trim() || naesteNavn(d);
+              })
+            }
+          />
         </div>
         <div>
           <label>&nbsp;</label>
@@ -463,7 +475,9 @@ function ProjektPanel({ res }: { res: DiagramResultat }) {
           <tbody>
             {TAPSTEDER.map((t) => (
               <tr key={t.kode} title={t.navn}>
-                <td>{t.kode}</td>
+                <td>
+                  {t.kode} <span className="hint">({t.navn})</span>
+                </td>
                 <td className="tal">{fmt(t.qf)}</td>
                 <td>{t.BK ? '✓' : ''}</td>
                 <td>{t.BV ? '✓' : ''}</td>
@@ -590,7 +604,17 @@ function ForudsaetningerPanel() {
       {tal('v max', 'vMax', 'm/s')}
       {tal('v min (varmt)', 'vMin', 'm/s')}
       {tal('Gns. v max (kritisk)', 'vGnsMax', 'm/s')}
-      {tal('R max', 'rMax', 'kPa/m')}
+      <div className="felt-raekke">
+        <span>R max</span>
+        <TalFelt
+          vaerdi={f.rMax * 1000}
+          decimaler={0}
+          onGem={(n) => {
+            if (n != null) opd((x) => void (x.rMax = n / 1000));
+          }}
+        />
+        <span className="enhed">Pa/m</span>
+      </div>
 
       <h4>Vand</h4>
       {tal('Temperatur koldt', 'tempKold', '°C', 0)}

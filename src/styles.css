@@ -7,7 +7,7 @@
   --accent: #334155;
   --fare: #dc2626;
   --valgt: #f97316;
-  --bk: #2563eb;
+  --bk: rgb(0, 0, 129);
   --bv: #dc2626;
   color-scheme: light;
 }
@@ -84,13 +84,26 @@ main { display: grid; grid-template-columns: 1fr 330px; min-height: 0; }
 }
 .skema th.input { background: #2b7f8a; }
 .skema th.venstre, .skema td.venstre { text-align: left; }
-.skema td { padding: 2px 8px; text-align: right; border-bottom: 1px solid #edf0f3; border-right: 1px solid #f1f3f5; }
-.skema td:nth-child(-n+3), .skema th:nth-child(-n+3), .skema td:nth-child(5) { text-align: center; }
-.skema tbody tr { cursor: pointer; }
-.skema tbody tr:hover { background: #f8fafc; }
-.skema tbody tr.valgt { background: #fff7ed; }
-.skema tbody tr.loeb-start td { border-top: 1.5px solid #94a3b8; }
-.skema tbody tr.ikke-forbundet { color: var(--daempet); font-style: italic; }
+.skema td { padding: 0 8px; text-align: right; vertical-align: middle; border-right: 1px solid #f1f3f5; }
+.skema th:first-child, .skema td.loeb { text-align: center; }
+/* Grupperede overskrifter: Punkt / Strækning */
+.skema tr.grupper th { top: 0; height: 22px; text-align: center; background: #175a62; letter-spacing: .03em; }
+.skema tr.kolonner th { top: 22px; }
+.skema .skel { border-left: 2px solid #94a3b8 !important; }
+.skema th.skel { border-left-color: #0f3e44 !important; }
+/* Stige: hver tabelrække er en halv række – punkter og strækninger fylder to, forskudt */
+.skema tr.halv { height: 13px; }
+.skema td { cursor: pointer; }
+.skema td.p { border-bottom: 1px solid #e2e8f0; background: #fff; }
+.skema td.p.navn { text-align: left; font-weight: 600; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.skema td.p.loeb { color: var(--daempet); font-size: 11px; }
+.skema td.p.gentaget { color: var(--daempet); font-style: italic; }
+.skema td.s { background: #f7fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+.skema td.s-tom { background: transparent; cursor: default; }
+.skema td.p:hover, .skema td.s:hover { background: #f1f5f9; }
+.skema td.valgt, .skema td.valgt:hover { background: #ffedd5 !important; }
+.skema tr.loeb-start td.p { border-top: 2px solid #64748b; }
+.skema tr.ikke-forbundet td { color: var(--daempet); font-style: italic; }
 .skema td.input { background: #e0f4f7; padding: 1px 2px; }
 .skema td.input.mangler { background: #fee2e2; }
 .skema td.input input {
@@ -115,6 +128,18 @@ main { display: grid; grid-template-columns: 1fr 330px; min-height: 0; }
 /* SVG-elementer */
 .roer-dim { font-size: 8.5px; fill: #334155; }
 .roer-navn { font-size: 7px; fill: #111827; }
+/* Kritisk vej: pulserende blåt lys langs strækningerne til farligste punkt */
+.roer-kritisk-puls {
+  fill: none; stroke: #3b82f6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none;
+  filter: blur(1.5px); animation: kritisk-puls 1.8s ease-in-out infinite;
+}
+@keyframes kritisk-puls {
+  0%, 100% { stroke-opacity: .12; stroke-width: 6; }
+  50%      { stroke-opacity: .45; stroke-width: 13; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .roer-kritisk-puls { animation: none; stroke-opacity: .3; stroke-width: 9; }
+}
 .roer-hover {
   fill: none; stroke: var(--valgt); stroke-opacity: 0; stroke-width: 10;
   stroke-linecap: round; stroke-linejoin: round; pointer-events: stroke;
@@ -187,3 +212,4 @@ p.advarsel-tekst { margin: 4px 0; font-size: 12px; }
   font-size: 12px; color: var(--daempet); background: var(--panel); border-top: 1px solid var(--kant);
 }
 .statuslinje .advarsel { color: #b45309; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+button.kun-lokalt { border-style: dashed; color: #92400e; border-color: #f59e0b; }

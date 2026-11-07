@@ -63,6 +63,29 @@ describe('forgrenet net', () => {
   });
 });
 
+describe('kritisk vej', () => {
+  // F ── A ── B      (B lavt)
+  //      │
+  //      C          (C højt oppe → bliver værst)
+  const net = (koteC: number): Diagram => ({
+    knuder: [forsyning('F'), k('A', 1), k('B', 1, 0.5), k('C', koteC, 0.5)],
+    straekninger: [
+      s('FA', 'F', 'A', { laengde: 10 }),
+      s('AB', 'A', 'B', { laengde: 40 }), // længere gren → B er værst, så længe C ligger lavt
+      s('AC', 'A', 'C', { laengde: 10 }),
+    ],
+  });
+
+  it('flytter til forgreningen når den bliver værst', () => {
+    const lav = beregn(net(1));
+    const hoej = beregn(net(12));
+    expect(hoej.opsummering!.kritiskKnude).toBe('C');
+    expect(hoej.opsummering!.kritiskVej).toEqual(['FA', 'AC']);
+    expect(lav.opsummering!.kritiskKnude).toBe('B');
+    expect(lav.opsummering!.kritiskVej).toEqual(['FA', 'AB']);
+  });
+});
+
 describe('rørstræk fortsætter', () => {
   it('indgår ikke i beregning eller advarsler', () => {
     const d: Diagram = {

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useStore, erProjekt, type Vaerktoej } from '../store';
 import { ARK_LISTE, type ArkStr } from '../tegning/ark';
 import { printPdf } from './print';
-import eksempel from '../eksempel/solmarksvej.json';
+import eksempel from '../eksempel/eksempel.json';
 import type { Projekt } from '../model/types';
 import { SYSTEM_NAVN, TAPPESYSTEMER } from '../model/types';
 import { nytProjekt } from '../model/standard';
@@ -159,7 +159,7 @@ export function Vaerktoejslinje() {
         </button>
         <button
           onClick={() => {
-            if (confirm('Åbn eksemplet (Solmarksvej)? Den nuværende tegning erstattes – gem den først, hvis du vil beholde den.')) {
+            if (confirm(`Åbn eksemplet (${eksempel.navn})? Den nuværende tegning erstattes – gem den først, hvis du vil beholde den.`)) {
               indlaes(structuredClone(eksempel) as unknown as Projekt);
             }
           }}
@@ -167,6 +167,25 @@ export function Vaerktoejslinje() {
         >
           Eksempel
         </button>
+        {import.meta.env.DEV && (
+          <button
+            className="kun-lokalt"
+            title="Kun i din lokale udgave: gem den nuværende tegning som det eksempel alle brugere får"
+            onClick={async () => {
+              const p = useStore.getState().projekt;
+              if (!confirm(`Gem "${p.navn}" som eksempel for alle brugere?`)) return;
+              try {
+                const svar = await fetch('/__gem-eksempel', { method: 'POST', body: JSON.stringify(p) });
+                if (!svar.ok) throw new Error(await svar.text());
+                alert('Gemt som eksempel. Det kommer med næste gang siden udgives.');
+              } catch (e) {
+                alert('Kunne ikke gemme eksemplet: ' + e);
+              }
+            }}
+          >
+            Gem som eksempel
+          </button>
+        )}
         <button onClick={() => filRef.current?.click()}>Åbn…</button>
         <button onClick={gem}>Gem</button>
         <input
