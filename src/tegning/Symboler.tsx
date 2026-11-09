@@ -77,24 +77,20 @@ export function RoerTegning({
       />
       {l > 0 && !visuel && (
         <g transform={transform}>
-          {/* Dimension over navnet */}
-          <text y={visNavn ? -11 : -3} textAnchor="middle" className={'roer-dim' + (dimAdvarsel ? ' advarsel' : '')}>
+          {/* Dimension på den ene side af røret … */}
+          <text y={-3} textAnchor="middle" className={'roer-dim' + (dimAdvarsel ? ' advarsel' : '')}>
             {dimTekst}
           </text>
-          {/* Navn og længde står på linjen */}
+          {/* … længden på den modsatte side (strækningsnavnet ses i skemaet, panelet og ved mus-over) */}
           {visNavn && (
-          <text y={-2.5} textAnchor="middle" className="roer-navn">
-            {navn} ·{' '}
-            {s.laengde != null ? (
-              `L=${fmt(s.laengde, 1)} m`
-            ) : (
-              <tspan className="advarsel">L=?</tspan>
-            )}
+          <text y={8} textAnchor="middle" className="roer-navn">
+            <title>{navn}</title>
+            {s.laengde != null ? `${fmt(s.laengde, 1)}m` : <tspan className="advarsel">?m</tspan>}
           </text>
           )}
-          {/* Detaljer under linjen */}
+          {/* Detaljer under længden */}
           {visDetaljer && res?.tab && (
-            <text y={11} textAnchor="middle" className="roer-detalje">
+            <text y={visNavn ? 17.5 : 8} textAnchor="middle" className="roer-detalje">
               qd' {fmt(res.qdMark)} l/s · v {fmt(res.tab.v)} m/s
             </text>
           )}
@@ -149,7 +145,7 @@ export function PunktTegning({
         <tspan className="punkt-kote"> {fmtKote(k.kote)}</tspan>
       </text>
       {info.map((x, i) => (
-        <text key={i} x={k.x + 6} y={k.y + 12 + i * 9} className={'punkt-info' + (x.advarsel ? ' advarsel' : '')}>
+        <text key={i} x={k.x + 6} y={k.y + 12 + i * 10} className={'punkt-info' + (x.advarsel ? ' advarsel' : '')}>
           {x.t}
         </text>
       ))}

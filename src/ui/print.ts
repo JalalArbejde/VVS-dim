@@ -55,7 +55,7 @@ export function printPdf(a: ArkStr) {
       const klon = g.cloneNode(true) as SVGGElement;
       klon.removeAttribute('transform');
       klon
-        .querySelectorAll('.ark-ramme, .roer-hover, .markering, .forhaandsvisning, .markoer, .tegn-knaek, .fortsaetter-hit, .roer-kritisk-puls')
+        .querySelectorAll('.ark-ramme, .roer-hover, .markering, .forhaandsvisning, .markoer, .tegn-knaek, .fortsaetter-hit, .roer-kritisk-puls, .magnet-guide')
         .forEach((e) => e.remove());
 
       const st = useStore.getState();
@@ -70,14 +70,14 @@ export function printPdf(a: ArkStr) {
 
       const titelfelt = `
         <rect x="${r.x + m}" y="${r.y + m}" width="${r.b - 2 * m}" height="${r.h - 2 * m}" fill="none" stroke="#000" stroke-width="0.8"/>
-        <g font-family="system-ui, 'Segoe UI', sans-serif" fill="#000">
+        <g class="titelfelt" font-family="Arial, Helvetica, sans-serif" font-size="7.92" fill="#000">
           <rect x="${tx}" y="${ty}" width="${tb.b}" height="${tb.h}" fill="#fff" stroke="#000" stroke-width="0.8"/>
           <line x1="${tx}" y1="${ty + tb.h * 0.45}" x2="${tx + tb.b}" y2="${ty + tb.h * 0.45}" stroke="#000" stroke-width="0.4"/>
-          <text x="${tx + 8}" y="${ty + 22}" font-size="14" font-weight="700">${esc(st.projekt.navn)}</text>
-          <text x="${tx + 8}" y="${ty + tb.h * 0.45 + 15}" font-size="9">Principdiagram brugsvand – ${SYSTEM_NAVN[st.system]} (${st.system})</text>
-          <text x="${tx + 8}" y="${ty + tb.h * 0.45 + 28}" font-size="8">Dimensioneret iht. DS 439</text>
-          <text x="${tx + tb.b - 8}" y="${ty + tb.h * 0.45 + 15}" font-size="8" text-anchor="end">Ark ${a}</text>
-          <text x="${tx + tb.b - 8}" y="${ty + tb.h * 0.45 + 28}" font-size="8" text-anchor="end">${dato}</text>
+          <text x="${tx + 8}" y="${ty + 22}" font-weight="700">${esc(st.projekt.navn)}</text>
+          <text x="${tx + 8}" y="${ty + tb.h * 0.45 + 15}">Principdiagram brugsvand – ${SYSTEM_NAVN[st.system]} (${st.system})</text>
+          <text x="${tx + 8}" y="${ty + tb.h * 0.45 + 28}">Dimensioneret iht. DS 439</text>
+          <text x="${tx + tb.b - 8}" y="${ty + tb.h * 0.45 + 15}" text-anchor="end">Ark ${a}</text>
+          <text x="${tx + tb.b - 8}" y="${ty + tb.h * 0.45 + 28}" text-anchor="end">${dato}</text>
         </g>`;
 
       vindue.document.open();

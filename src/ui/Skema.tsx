@@ -4,7 +4,7 @@
 // Rækkefølge: hovedløbet (største qd') fra forsyningen ud til sidste punkt, derefter afgreninger.
 import { useMemo, useRef, useState } from 'react';
 import type { PointerEvent as RPointerEvent, ReactNode } from 'react';
-import { erValgt, useStore } from '../store';
+import { erValgt, SKEMA_PLACERINGER, useStore, type SkemaPlacering } from '../store';
 import type { Diagram, Knude, Straekning } from '../model/types';
 import { SYSTEM_NAVN } from '../model/types';
 import { fmt } from '../model/geometri';
@@ -78,8 +78,14 @@ export function Skema({ res }: { res: DiagramResultat }) {
   const valg = useStore((st) => st.valg);
   const setValg = useStore((st) => st.setValg);
   const aendr = useStore((st) => st.aendr);
+  const placering = useStore((st) => st.skemaPlacering);
+  const setPlacering = useStore((st) => st.setSkemaPlacering);
   const [hoejde, setHoejde] = useState(260);
-  const traek = useRef<{ y: number; h: number } | null>(null);
+  const [bredde, setBredde] = useState(560);
+  const [flyd, setFlyd] = useState({ x: 24, y: 24, b: 720, h: 320 });
+  const traek = useRef<{
+    x: number; y: number; h: number; b: number; flyd: typeof flyd; flyt: boolean; ramme: DOMRect | null;
+  } | null>(null);
 
   const loeb = useMemo(() => byggLoeb(diagram, res), [diagram, res]);
   const antalStraekninger = loeb.reduce((a, L) => a + L.straekninger.length, 0);
@@ -99,14 +105,41 @@ export function Skema({ res }: { res: DiagramResultat }) {
     setValg({ type, id });
   };
 
-  const startTraek = (e: RPointerEvent<HTMLDivElement>) => {
-    traek.current = { y: e.clientY, h: hoejde };
+  /** flyt = true: hele det flydende vindue flyttes (træk i titellinjen); ellers ændres størrelsen */
+  const startTraek = (e: RPointerEvent<HTMLDivElement>, flyt = false) => {
+    const ramme = e.currentTarget.closest('.venstre-kol')?.getBoundingClientRect() ?? null;
+    traek.current = { x: e.clientX, y: e.clientY, h: hoejde, b: bredde, flyd, flyt, ramme };
     e.currentTarget.setPointerCapture(e.pointerId);
   };
   const flytTraek = (e: RPointerEvent<HTMLDivElement>) => {
     const t = traek.current;
-    if (t) setHoejde(Math.max(80, Math.min(window.innerHeight - 200, t.h + (t.y - e.clientY))));
+    if (!t) return;
+    const dx = e.clientX - t.x;
+    const dy = e.clientY - t.y;
+    const W = t.ramme?.width ?? window.innerWidth;
+    const H = t.ramme?.height ?? window.innerHeight;
+    const klem = (v: number, min: number, max: number) => Math.max(min, Math.min(Math.max(min, max), v));
+    switch (placering) {
+      case 'nederst': setHoejde(klem(t.h - dy, 80, H - 120)); break;
+      case 'oeverst': setHoejde(klem(t.h + dy, 80, H - 120)); break;
+      case 'hoejre': setBredde(klem(t.b - dx, 240, W - 200)); break;
+      case 'venstre': setBredde(klem(t.b + dx, 240, W - 200)); break;
+      case 'flydende':
+        if (t.flyt) setFlyd({ ...t.flyd, x: klem(t.flyd.x + dx, 0, W - 120), y: klem(t.flyd.y + dy, 0, H - 40) });
+        else setFlyd({ ...t.flyd, b: klem(t.flyd.b + dx, 320, W - t.flyd.x), h: klem(t.flyd.h + dy, 140, H - t.flyd.y) });
+        break;
+    }
   };
+  const slutTraek = () => (traek.current = null);
+  const lodret = placering === 'nederst' || placering === 'oeverst';
+  const stil =
+    placering === 'flydende'
+      ? { left: flyd.x, top: flyd.y, width: flyd.b, height: flyd.h }
+      : lodret
+        ? { height: hoejde }
+        : { width: bredde };
+  const grebTitel =
+    placering === 'flydende' ? 'Træk for at ændre størrelsen' : lodret ? 'Træk for at ændre højden' : 'Træk for at ændre bredden';
 
   /** Tekst til Excel: én række pr. strækning (som i Brugsvand-arket) */
   const kopier = (): string => {
@@ -315,19 +348,38 @@ export function Skema({ res }: { res: DiagramResultat }) {
   };
 
   return (
-    <section className="skema" style={{ height: hoejde }}>
+    <section className={`skema skema-${placering}`} style={stil}>
       <div
-        className="skema-greb"
-        onPointerDown={startTraek}
+        className={`skema-greb greb-${placering}`}
+        onPointerDown={(e) => startTraek(e)}
         onPointerMove={flytTraek}
-        onPointerUp={() => (traek.current = null)}
-        title="Træk for at ændre højden"
+        onPointerUp={slutTraek}
+        title={grebTitel}
       />
-      <div className="skema-top">
+      <div
+        className="skema-top"
+        onPointerDown={(e) => {
+          if (placering !== 'flydende') return;
+          if ((e.target as HTMLElement).closest('button, select, input')) return;
+          startTraek(e, true);
+        }}
+        onPointerMove={flytTraek}
+        onPointerUp={slutTraek}
+        title={placering === 'flydende' ? 'Træk i titellinjen for at flytte vinduet' : undefined}
+      >
         <strong>Skema – {SYSTEM_NAVN[system]}</strong>
         <span className="hint">{antalStraekninger} strækninger · lyseblå felter kan rettes</span>
+        <label className="placering hoejre">
+          Placering
+          <select value={placering} onChange={(e) => setPlacering(e.target.value as SkemaPlacering)}>
+            {SKEMA_PLACERINGER.map((p) => (
+              <option key={p.v} value={p.v}>
+                {p.navn}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
-          className="hoejre"
           onClick={kopierStige}
           title="Indsæt i Excel med Ctrl+V – punkter og strækninger bliver flettede celler som i skemaet"
         >

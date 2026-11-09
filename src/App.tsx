@@ -13,13 +13,14 @@ export default function App() {
   const f = useStore((s) => s.projekt.forudsaetninger);
   const res = useMemo(() => beregnDiagram(diagram, system, f), [diagram, system, f]);
   const visSkema = useStore((s) => s.visSkema);
+  const placering = useStore((s) => s.skemaPlacering);
   useTastatur();
 
   return (
     <div className="app">
       <Vaerktoejslinje />
       <main>
-        <div className="venstre-kol">
+        <div className={`venstre-kol plac-${placering}`}>
           <Laerred res={res} />
           {visSkema && <Skema res={res} />}
         </div>
@@ -84,6 +85,7 @@ function useTastatur() {
       else if (k === 'v') s.setVaerktoej('vaelg');
       else if (k === 'r') s.setVaerktoej('roer');
       else if (k === 'd') s.setVisDetaljer(!s.visDetaljer);
+      else if (k === 'm') s.setMagnet(!s.magnet);
     };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);

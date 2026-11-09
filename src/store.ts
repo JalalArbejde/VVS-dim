@@ -47,6 +47,12 @@ interface Tilstand {
   /** Vis skemaet under tegningen */
   visSkema: boolean;
   setVisSkema: (v: boolean) => void;
+  /** Magnet: punkter snapper til linjer gennem andre punkter (huskes i browseren) */
+  magnet: boolean;
+  setMagnet: (v: boolean) => void;
+  /** Hvor skemaet sidder i forhold til tegningen (huskes i browseren) */
+  skemaPlacering: SkemaPlacering;
+  setSkemaPlacering: (v: SkemaPlacering) => void;
 
   aendr: <T>(fn: (p: Projekt) => T, medHistorik?: boolean) => T;
   gemHistorik: () => void;
@@ -65,6 +71,33 @@ interface Tilstand {
 }
 
 const NOEGLE = 'vvs-dim-projekt-v2';
+
+export type SkemaPlacering = 'nederst' | 'oeverst' | 'venstre' | 'hoejre' | 'flydende';
+export const SKEMA_PLACERINGER: { v: SkemaPlacering; navn: string }[] = [
+  { v: 'nederst', navn: 'Nederst' },
+  { v: 'oeverst', navn: 'Øverst' },
+  { v: 'venstre', navn: 'Venstre' },
+  { v: 'hoejre', navn: 'Højre' },
+  { v: 'flydende', navn: 'Flydende vindue' },
+];
+const PLACERING_NOEGLE = 'vvs-dim-skema-placering';
+const MAGNET_NOEGLE = 'vvs-dim-magnet';
+function hentMagnet(): boolean {
+  try {
+    return localStorage.getItem(MAGNET_NOEGLE) !== '0'; // slået til som standard
+  } catch {
+    return true;
+  }
+}
+function hentPlacering(): SkemaPlacering {
+  try {
+    const v = localStorage.getItem(PLACERING_NOEGLE);
+    if (SKEMA_PLACERINGER.some((p) => p.v === v)) return v as SkemaPlacering;
+  } catch {
+    /* ingen adgang til lager */
+  }
+  return 'nederst';
+}
 const MAKS_HISTORIK = 100;
 
 export function erProjekt(p: unknown): p is Projekt {
@@ -106,6 +139,24 @@ export const useStore = create<Tilstand>()((set, get) => ({
   setVisNavne: (v) => set({ visNavne: v }),
   visSkema: true,
   setVisSkema: (v) => set({ visSkema: v }),
+  magnet: hentMagnet(),
+  setMagnet: (v) => {
+    try {
+      localStorage.setItem(MAGNET_NOEGLE, v ? '1' : '0');
+    } catch {
+      /* huskes bare ikke */
+    }
+    set({ magnet: v });
+  },
+  skemaPlacering: hentPlacering(),
+  setSkemaPlacering: (v) => {
+    try {
+      localStorage.setItem(PLACERING_NOEGLE, v);
+    } catch {
+      /* privat vindue o.l. – placeringen huskes bare ikke */
+    }
+    set({ skemaPlacering: v });
+  },
 
   aendr: (fn, medHistorik = true) => {
     const s = get();

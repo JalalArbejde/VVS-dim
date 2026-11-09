@@ -26,6 +26,8 @@ export function Vaerktoejslinje() {
   const visNavne = useStore((s) => s.visNavne);
   const setVisNavne = useStore((s) => s.setVisNavne);
   const visSkema = useStore((s) => s.visSkema);
+  const magnet = useStore((s) => s.magnet);
+  const setMagnet = useStore((s) => s.setMagnet);
   const setVisSkema = useStore((s) => s.setVisSkema);
   const kanFortryde = useStore((s) => s.historik.length > 0);
   const kanGentage = useStore((s) => s.fremtid.length > 0);
@@ -100,12 +102,19 @@ export function Vaerktoejslinje() {
         >
           Detaljer <kbd>D</kbd>
         </button>
-        <button className={visSkema ? 'aktiv' : ''} onClick={() => setVisSkema(!visSkema)} title="Vis skema under tegningen">
+        <button
+          className={magnet ? 'aktiv' : ''}
+          onClick={() => setMagnet(!magnet)}
+          title="Magnet: punkter og knæk snapper på linje med andre punkter, når de er tæt på (M)"
+        >
+          🧲 Magnet <kbd>M</kbd>
+        </button>
+        <button className={visSkema ? 'aktiv' : ''} onClick={() => setVisSkema(!visSkema)} title="Vis skema – placeringen vælges i skemaets titellinje">
           Skema
         </button>
-        <label className="vink" title="Vis strækningsnavn og længde på tegningen (også på PDF)">
+        <label className="vink" title="Vis længden på rørene på tegningen (også på PDF)">
           <input type="checkbox" checked={visNavne} onChange={(e) => setVisNavne(e.target.checked)} />
-          Strækning og længde
+          Længde
         </label>
         {ARK_LISTE.map((a) => (
           <button

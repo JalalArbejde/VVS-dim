@@ -7,7 +7,10 @@ import type { PointerEvent as RPointerEvent } from 'react';
 import { erValgt, useStore } from '../store';
 import { ARK_MM, mmTilEnhed, NULPUNKT } from './ark';
 import type { Diagram, Knude, Punkt } from '../model/types';
-import { ortogonal, snapPunkt } from '../model/geometri';
+import { magnetForskydning, magnetLinjer, ortogonal, snapPunkt } from '../model/geometri';
+
+/** Magnetens rækkevidde i skærm-pixels */
+const MAGNET_PX = 14;
 import {
   findEllerOpretKnude,
   findKnude,
@@ -33,6 +36,19 @@ export function Laerred({ res }: { res: DiagramResultat }) {
   const traek = useRef<Traek | null>(null);
   const [omraade, setOmraade] = useState<{ a: Punkt; b: Punkt } | null>(null);
   const sidsteKlik = useRef<{ t: number; x: number; y: number } | null>(null);
+  /** Magnetens hjælpelinjer (lodret x / vandret y) mens der tegnes eller trækkes */
+  const [guide, setGuide] = useState<{ x: number | null; y: number | null }>({ x: null, y: null });
+  const visGuide = (x: number | null, y: number | null) =>
+    setGuide((g) => (g.x === x && g.y === y ? g : { x, y }));
+
+  /** Snap et tegnepunkt til linjer gennem eksisterende punkter/knæk (hvis magneten er slået til) */
+  const magnetTegn = (ws: Punkt): { p: Punkt; gx: number | null; gy: number | null } => {
+    const s = useStore.getState();
+    if (!s.magnet) return { p: ws, gx: null, gy: null };
+    const linjer = magnetLinjer(s.projekt[s.system], undefined, undefined, s.tegnKnaek);
+    const m = magnetForskydning([ws], 0, 0, linjer, MAGNET_PX / view.zoom);
+    return { p: { x: ws.x + m.dx, y: ws.y + m.dy }, gx: m.gx, gy: m.gy };
+  };
 
   /** Dobbeltklik: to venstreklik inden for 400 ms og 6 px (PointerEvent.detail er altid 0) */
   const erDobbeltklik = (e: RPointerEvent<SVGSVGElement>) => {
@@ -93,7 +109,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
     const sys = s.system;
     const d = s.projekt[sys];
     const w = tilVerden(e);
-    const ws = snapPunkt(w);
+    const ws = magnetTegn(snapPunkt(w)).p;
     const radius = 8 / view.zoom;
 
     // Ikke i gang: start fra eksisterende punkt (enkeltklik) eller opret nyt punkt (dobbeltklik)
@@ -231,9 +247,20 @@ export function Laerred({ res }: { res: DiagramResultat }) {
     const s = useStore.getState();
     const w = tilVerden(e);
     const ws = snapPunkt(w);
-    if (!s.markoer || s.markoer.x !== ws.x || s.markoer.y !== ws.y) s.setMarkoer(ws);
-
     const t = traek.current;
+
+    if (s.vaerktoej === 'roer') {
+      const m = magnetTegn(ws);
+      if (!s.markoer || s.markoer.x !== m.p.x || s.markoer.y !== m.p.y) s.setMarkoer(m.p);
+      // Vis kun den hjælpelinje der faktisk bruges i den retning røret tegnes
+      const fra = s.tegnFra ? s.projekt[s.system].knuder.find((k) => k.id === s.tegnFra) : undefined;
+      const sidste = s.tegnKnaek[s.tegnKnaek.length - 1] ?? fra;
+      if (sidste) {
+        const vandret = Math.abs(m.p.x - sidste.x) >= Math.abs(m.p.y - sidste.y);
+        visGuide(vandret ? m.gx : null, vandret ? null : m.gy);
+      } else visGuide(m.gx, m.gy);
+    } else if (!s.markoer || s.markoer.x !== ws.x || s.markoer.y !== ws.y) s.setMarkoer(ws);
+
     if (!t) return;
     if (t.type === 'omraade') {
       setOmraade({ a: t.start, b: w });
@@ -243,8 +270,30 @@ export function Laerred({ res }: { res: DiagramResultat }) {
       setView((v) => ({ ...v, x: t.vx + e.clientX - t.sx, y: t.vy + e.clientY - t.sy }));
       return;
     }
-    const dx = ws.x - t.start.x;
-    const dy = ws.y - t.start.y;
+    let dx = ws.x - t.start.x;
+    let dy = ws.y - t.start.y;
+    if (s.magnet && (dx !== 0 || dy !== 0)) {
+      // Find de punkter der flyttes, og lad dem ikke trække i sig selv
+      let flyttes: Punkt[];
+      let linjer;
+      if (t.type === 'markering') {
+        const ids = new Set(t.knuder);
+        for (const st of t.orig.straekninger)
+          if (t.straekninger.includes(st.id)) {
+            ids.add(st.fra);
+            ids.add(st.til);
+          }
+        flyttes = t.orig.knuder.filter((k) => ids.has(k.id));
+        linjer = magnetLinjer(t.orig, ids, ids);
+      } else {
+        flyttes = t.orig.knuder.filter((k) => t.lodret.has(k.id) && t.vandret.has(k.id)); // det grebne punkt
+        linjer = magnetLinjer(t.orig, t.lodret, t.vandret);
+      }
+      const m = magnetForskydning(flyttes, dx, dy, linjer, MAGNET_PX / view.zoom);
+      dx = m.dx;
+      dy = m.dy;
+      visGuide(m.gx, m.gy);
+    } else visGuide(null, null);
     if (!t.flyttet) {
       if (dx === 0 && dy === 0) return;
       s.gemHistorik();
@@ -265,6 +314,7 @@ export function Laerred({ res }: { res: DiagramResultat }) {
       setOmraade(null);
     }
     traek.current = null;
+    if (useStore.getState().vaerktoej !== 'roer') visGuide(null, null);
     try {
       svgRef.current?.releasePointerCapture(e.pointerId);
     } catch {
@@ -340,7 +390,10 @@ export function Laerred({ res }: { res: DiagramResultat }) {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerLeave={() => useStore.getState().setMarkoer(null)}
+        onPointerLeave={() => {
+          useStore.getState().setMarkoer(null);
+          if (!traek.current) visGuide(null, null);
+        }}
         onContextMenu={(e) => e.preventDefault()}
       >
         {/* Gitter: fine linjer pr. 10 (= snap), lidt kraftigere pr. 50 */}
@@ -439,6 +492,12 @@ export function Laerred({ res }: { res: DiagramResultat }) {
               height={Math.abs(omraade.a.y - omraade.b.y)}
               className="markering"
             />
+          )}
+          {guide.x !== null && (
+            <line x1={guide.x} x2={guide.x} y1={-1e5} y2={1e5} className="magnet-guide" />
+          )}
+          {guide.y !== null && (
+            <line x1={-1e5} x2={1e5} y1={guide.y} y2={guide.y} className="magnet-guide" />
           )}
           {markoer && vaerktoej === 'roer' && (
             <circle cx={markoer.x} cy={markoer.y} r={3 / view.zoom} fill={FARVE[system]} className="markoer" />
